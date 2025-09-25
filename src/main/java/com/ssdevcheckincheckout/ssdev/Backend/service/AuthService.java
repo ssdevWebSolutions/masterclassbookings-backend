@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 
 import com.ssdevcheckincheckout.ssdev.Backend.dto.AuthResponse;
 import com.ssdevcheckincheckout.ssdev.Backend.dto.LoginRequest;
+import com.ssdevcheckincheckout.ssdev.Backend.dto.LoginResponse;
 import com.ssdevcheckincheckout.ssdev.Backend.dto.RegisterRequest;
 import com.ssdevcheckincheckout.ssdev.Backend.entity.Role;
 import com.ssdevcheckincheckout.ssdev.Backend.entity.User;
+import com.ssdevcheckincheckout.ssdev.Backend.exceptions.InvalidCredentialsException;
 import com.ssdevcheckincheckout.ssdev.Backend.repository.UserRepository;
 import com.ssdevcheckincheckout.ssdev.Backend.security.JWTUtil;
 
@@ -40,30 +42,57 @@ public class AuthService {
             throw new RuntimeException("User already exists!");
         }
 
+        // Determine role (default to USER if null)
+        Role userRole = registerRequest.getRole() != null ? registerRequest.getRole() : Role.USER;
+
         // Create a new user using the builder pattern
         User user = new User.Builder()
-                    .setEmail(registerRequest.getEmail())
-                    .setPassword(passwordEncoder.encode(registerRequest.getPassword())) // Encrypt password
-                    .setRole(Role.USER) // Default role is USER
-                    .setEnabled(true) // Active by default
-                    .build();
+                .setEmail(registerRequest.getEmail())
+                .setPassword(passwordEncoder.encode(registerRequest.getPassword())) // Encrypt password
+                .setFirstName(registerRequest.getFirstName())
+                .setLastName(registerRequest.getLastName())
+                .setPhoneNumber(registerRequest.getPhoneNumber()) // set phone number
+                .setRole(userRole)
+                .setEnabled(true) // Active by default
+                .build();
 
         // Save to database
         userRepository.save(user);
     }
 
     // Login user (authenticate and generate JWT)
-    public AuthResponse login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
         // Find user by email
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
         if (userOptional.isEmpty() || !passwordEncoder.matches(loginRequest.getPassword(), userOptional.get().getPassword())) {
-            throw new RuntimeException("Invalid email or password!");
+        	throw new InvalidCredentialsException("Invalid email or password");
         }
 
+        
+        System.out.println(userOptional.get().getRole()+"->");
         // Generate JWT token
         String token = jwtUtil.generateToken(userOptional.get());
+        
+        
+        LoginResponse lr = new LoginResponse();
+        Optional<User> getUser = userRepository.findByEmail(userOptional.get().getEmail());
+        if(getUser.isPresent())
+        {
+        	lr.setId(getUser.get().getId());
+        }
+        else 
+        lr.setId(0);
+        
+        lr.setEmail(userOptional.get().getEmail());
+        lr.setFullName(userOptional.get().getFirstName()+" "+ userOptional.get().getLastName());
+        lr.setMobileNumber(userOptional.get().getPhoneNumber());
+        lr.setRole(userOptional.get().getRole());
+        lr.setToken(token);
+        
+        
+ 
 
         // Return AuthResponse with the token
-        return new AuthResponse(token);
+        return lr;
     }
 }

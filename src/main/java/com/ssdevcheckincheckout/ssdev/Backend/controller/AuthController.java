@@ -1,6 +1,8 @@
 package com.ssdevcheckincheckout.ssdev.Backend.controller;
 
 import com.ssdevcheckincheckout.ssdev.Backend.dto.LoginRequest;
+import com.ssdevcheckincheckout.ssdev.Backend.dto.LoginResponse;
+
 import org.springframework.security.core.Authentication;
 import com.ssdevcheckincheckout.ssdev.Backend.dto.RegisterRequest;
 import com.ssdevcheckincheckout.ssdev.Backend.entity.User;
@@ -9,6 +11,8 @@ import com.ssdevcheckincheckout.ssdev.Backend.dto.AuthResponse;
 import com.ssdevcheckincheckout.ssdev.Backend.security.JWTUtil;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,9 +22,11 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest; // Use this import for Spring Boot 3 and above
 
+
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/auth")
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
@@ -35,16 +41,16 @@ public class AuthController {
     
     // Register user
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest);
         return ResponseEntity.ok("User registered successfully!");
     }
 
     // Login user (authenticate and return JWT)
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest) {
-        AuthResponse authResponse = authService.login(loginRequest);
-        return ResponseEntity.ok(authResponse);
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+//        AuthResponse authResponse = authService.login(loginRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequest));
     }
     
     
@@ -92,6 +98,13 @@ public class AuthController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<String> protectedEndpoint() {
         return ResponseEntity.ok("Access granted to protected endpoint!");
+    }
+    
+    @GetMapping("/add")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> addKid() {
+        
+        return ResponseEntity.ok("hello");
     }
 
 }
