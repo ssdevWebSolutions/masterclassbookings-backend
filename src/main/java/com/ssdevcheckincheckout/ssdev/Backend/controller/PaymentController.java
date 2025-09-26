@@ -48,6 +48,10 @@ public class PaymentController {
             lineItems.add(item);
 
             params.put("line_items", lineItems);
+//            params.put("success_url", "http://localhost:3000/payment-success");
+//          params.put("cancel_url", "http://localhost:3000/booking");
+
+            
             params.put("success_url", "https://masterclassbookings-rt5n.vercel.app/payment-success");
             params.put("cancel_url", "https://masterclassbookings-rt5n.vercel.app/booking");
 

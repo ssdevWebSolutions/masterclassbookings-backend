@@ -82,7 +82,7 @@ public class BookingService {
             if (cricketSession.isPresent()) {
                 Session existingSession = cricketSession.get();
 
-                if (existingSession.getBookedCount() > 0) {
+                if (existingSession.getBookedCount() <= 36) {
                     existingSession.setBookedCount(existingSession.getBookedCount() + 1);
                     updateSessions.add(existingSession);
                 } else {
