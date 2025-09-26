@@ -18,6 +18,8 @@ import com.ssdevcheckincheckout.ssdev.Backend.repository.KidRepository;
 import com.ssdevcheckincheckout.ssdev.Backend.repository.SessionRepository;
 import com.ssdevcheckincheckout.ssdev.Backend.repository.UserRepository;
 
+import jakarta.mail.MessagingException;
+
 @Service
 public class BookingService {
 
@@ -32,6 +34,9 @@ public class BookingService {
 
     @Autowired
     private KidRepository kidRepository;
+    
+    @Autowired
+    private EmailService emailService;
     
     
     public List<BookingResponseDto> getBookingsForUser(Long parentId) {
@@ -94,10 +99,34 @@ public class BookingService {
         booking.setTimestamp(dto.getTimestamp());
 
         CricketBookingEntity savedBooking = cricketBookingRepository.save(booking);
+        
+       
+        
+        BookingResponseDto bookingData = buildBookingResponse(savedBooking);
+        System.out.println(bookingData.getParentEmail()+"->"+bookingData.getParentName()+
+        				  "->"+bookingData.getKidName()+"->"+bookingData.getBookingId()+
+        				  "->"+bookingData.getTotalAmount()+"->"+bookingData.getSessionDetails());
+        
+        try {
+			emailService.sendBookingConfirmation(
+				    bookingData.getParentEmail(),   // Parent’s actual email
+				    bookingData.getParentName(),    // Parent/Guardian Name
+				    bookingData.getKidName(),       // Child Name
+				    bookingData.getBookingId(),     // Booking ID / Order Reference
+				    bookingData.getTotalAmount(),   // Total Amount Paid
+				    bookingData.getSessionDetails()                     // Session Details with dates
+				);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
         // build response DTO for frontend + mail
-        return buildBookingResponse(savedBooking);
+//        return buildBookingResponse(savedBooking);
+        return bookingData;
     }
+    
+    
 
     private BookingResponseDto buildBookingResponse(CricketBookingEntity booking) {
         User parent = userRepository.findById(booking.getParentId())
@@ -109,7 +138,7 @@ public class BookingService {
         List<Session> sessions = sessionRepository.findAllById(booking.getSessionIds());
         List<String> sessionDetails = new ArrayList<>();
         for (Session s : sessions) {
-            sessionDetails.add(s.getDay() + " - " + s.getSessionClass() + " at " + s.getTime());
+            sessionDetails.add(s.getDay() + " - " + s.getSessionClass() + " at " + s.getTime() +" "+s.getDate());
         }
 
         BookingResponseDto dto = new BookingResponseDto();
@@ -121,6 +150,8 @@ public class BookingService {
         dto.setTotalAmount(booking.getTotalAmount());
         dto.setPaymentStatus(booking.getPaymentStatus());
         dto.setSessionDetails(sessionDetails);
+        
+    
 
         return dto;
     }
