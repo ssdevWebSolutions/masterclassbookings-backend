@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,8 @@ import jakarta.mail.MessagingException;
 @Service
 public class BookingService {
 
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
+
     @Autowired
     private CricketBookingRepository cricketBookingRepository;
 
@@ -34,36 +38,40 @@ public class BookingService {
 
     @Autowired
     private KidRepository kidRepository;
-    
+
     @Autowired
     private EmailService emailService;
-    
-    
+
+
     public List<BookingResponseDto> getBookingsForUser(Long parentId) {
-        // Fetch bookings for this parent
+        log.info("Fetching bookings for parentId={}", parentId);
         List<CricketBookingEntity> bookings = cricketBookingRepository.findByParentId(parentId);
 
         List<BookingResponseDto> bookingDtos = new ArrayList<>();
         for (CricketBookingEntity booking : bookings) {
             bookingDtos.add(buildBookingResponse(booking));
         }
+        log.debug("Found {} bookings for parentId={}", bookingDtos.size(), parentId);
         return bookingDtos;
     }
 
-    
+
     public List<BookingResponseDto> getAllBookings() {
+        log.info("Fetching all bookings...");
         List<CricketBookingEntity> bookings = cricketBookingRepository.findAll();
 
         List<BookingResponseDto> bookingDtos = new ArrayList<>();
         for (CricketBookingEntity booking : bookings) {
             bookingDtos.add(buildBookingResponse(booking));
         }
+        log.debug("Total bookings found: {}", bookingDtos.size());
         return bookingDtos;
     }
 
 
-
     public BookingResponseDto updateBookingFromDTO(BookingRequestDto dto) {
+        log.info("Updating booking from DTO: {}", dto);
+
         CricketBookingEntity booking = new CricketBookingEntity();
 
         // validate & update sessions
@@ -78,9 +86,11 @@ public class BookingService {
                     existingSession.setBookedCount(existingSession.getBookedCount() + 1);
                     updateSessions.add(existingSession);
                 } else {
+                    log.error("No available spots left for session ID={}", sessionId);
                     throw new RuntimeException("⚠️ No available spots left for session ID: " + sessionId);
                 }
             } else {
+                log.error("Session not found for ID={}", sessionId);
                 throw new RuntimeException("❌ Session not found for ID: " + sessionId);
             }
         }
@@ -99,46 +109,48 @@ public class BookingService {
         booking.setTimestamp(dto.getTimestamp());
 
         CricketBookingEntity savedBooking = cricketBookingRepository.save(booking);
-        
-       
-        
-        BookingResponseDto bookingData = buildBookingResponse(savedBooking);
-        System.out.println(bookingData.getParentEmail()+"->"+bookingData.getParentName()+
-        				  "->"+bookingData.getKidName()+"->"+bookingData.getBookingId()+
-        				  "->"+bookingData.getTotalAmount()+"->"+bookingData.getSessionDetails());
-        
-        try {
-			emailService.sendBookingConfirmation(
-				    bookingData.getParentEmail(),   // Parent’s actual email
-				    bookingData.getParentName(),    // Parent/Guardian Name
-				    bookingData.getKidName(),       // Child Name
-				    bookingData.getBookingId(),     // Booking ID / Order Reference
-				    bookingData.getTotalAmount(),   // Total Amount Paid
-				    bookingData.getSessionDetails()                     // Session Details with dates
-				);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
-        // build response DTO for frontend + mail
-//        return buildBookingResponse(savedBooking);
+        BookingResponseDto bookingData = buildBookingResponse(savedBooking);
+
+        log.info("Booking created successfully: {}", bookingData);
+
+        try {
+            emailService.sendBookingConfirmation(
+                    bookingData.getParentEmail(),
+                    bookingData.getParentName(),
+                    bookingData.getKidName(),
+                    bookingData.getBookingId(),
+                    bookingData.getTotalAmount(),
+                    bookingData.getSessionDetails()
+            );
+            log.info("Booking confirmation email sent to {}", bookingData.getParentEmail());
+        } catch (MessagingException e) {
+            log.error("Failed to send booking confirmation email for bookingId={}", bookingData.getBookingId(), e);
+        }
+
         return bookingData;
     }
-    
-    
+
 
     private BookingResponseDto buildBookingResponse(CricketBookingEntity booking) {
+        log.debug("Building booking response for bookingId={}", booking.getId());
+
         User parent = userRepository.findById(booking.getParentId())
-                .orElseThrow(() -> new RuntimeException("Parent not found"));
+                .orElseThrow(() -> {
+                    log.error("Parent not found for parentId={}", booking.getParentId());
+                    return new RuntimeException("Parent not found");
+                });
 
         Kid kid = kidRepository.findById(booking.getChildId())
-                .orElseThrow(() -> new RuntimeException("Kid not found"));
+                .orElseThrow(() -> {
+                    log.error("Kid not found for childId={}", booking.getChildId());
+                    return new RuntimeException("Kid not found");
+                });
 
         List<Session> sessions = sessionRepository.findAllById(booking.getSessionIds());
         List<String> sessionDetails = new ArrayList<>();
         for (Session s : sessions) {
-            sessionDetails.add(s.getDay() + " - " + s.getSessionClass() + " at " + s.getTime() +" "+s.getDate());
+            sessionDetails.add(s.getDay() + " - " + s.getSessionClass() + " at " + s.getTime() + " " + s.getDate());
         }
 
         BookingResponseDto dto = new BookingResponseDto();
@@ -150,8 +162,6 @@ public class BookingService {
         dto.setTotalAmount(booking.getTotalAmount());
         dto.setPaymentStatus(booking.getPaymentStatus());
         dto.setSessionDetails(sessionDetails);
-        
-    
 
         return dto;
     }
