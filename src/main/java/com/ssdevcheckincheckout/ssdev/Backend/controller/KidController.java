@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ssdevcheckincheckout.ssdev.Backend.entity.Kid;
 import com.ssdevcheckincheckout.ssdev.Backend.service.KidService;
 
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://masterclassbookings-rt5n.vercel.app/")
 @RestController
 @RequestMapping("/api/auth")
 public class KidController {
