@@ -1,5 +1,6 @@
 package com.ssdevcheckincheckout.ssdev.Backend.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,9 @@ public class BookingService {
 
     @Autowired
     private EmailService emailService;
+    
+    @Autowired
+    private SendGridEmailService sendGridEmailService;
 
 
     public List<BookingResponseDto> getBookingsForUser(Long parentId) {
@@ -113,7 +117,23 @@ public class BookingService {
         BookingResponseDto bookingData = buildBookingResponse(savedBooking);
 
         log.info("Booking created successfully: {}", bookingData);
-
+        
+        
+//        sendgrid
+        try {
+			sendGridEmailService.sendBookingConfirmation(
+			        bookingData.getParentEmail(),
+			        bookingData.getParentName(),
+			        bookingData.getKidName(),
+			        bookingData.getBookingId(),
+			        bookingData.getTotalAmount(),
+			        bookingData.getSessionDetails()
+			);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//        gmail
         try {
             emailService.sendBookingConfirmation(
                     bookingData.getParentEmail(),

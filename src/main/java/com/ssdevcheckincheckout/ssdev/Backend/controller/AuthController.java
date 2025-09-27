@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest; // Use this import for Spring Boot 3 and above
 
 
-@CrossOrigin(origins = "https://masterclassbookings-rt5n.vercel.app/")
+@CrossOrigin(origins = "https://masterclassbookings-rt5n.vercel.app/,http://localhost:3000")
 @RestController
 @RequestMapping("/api/auth")
 //@RequiredArgsConstructor

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-@CrossOrigin(origins = "https://masterclassbookings-rt5n.vercel.app/") // allow frontend origin
+@CrossOrigin(origins = "https://masterclassbookings-rt5n.vercel.app/,http://localhost:3000") // allow frontend origin
 @RestController
 @RequestMapping("/api/auth/payments")
 public class PaymentController {
