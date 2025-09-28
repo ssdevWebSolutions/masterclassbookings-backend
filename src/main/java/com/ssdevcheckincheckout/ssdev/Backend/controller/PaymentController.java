@@ -132,7 +132,7 @@ public class PaymentController {
             params.put("mode", "payment");
 
             // Stripe expects amount in cents
-            long stripeAmount = (long) (amount * 100);
+            long stripeAmount = (long) (amount * 1);
 
             List<Object> lineItems = new ArrayList<>();
             Map<String, Object> item = new HashMap<>();
@@ -156,8 +156,11 @@ public class PaymentController {
             metadata.put("totalAmount", reservationDetails.get("totalAmount").toString());
             params.put("metadata", metadata);
 
-            params.put("success_url", "http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}");
-            params.put("cancel_url", "http://localhost:3000/booking?cancelled=true");
+//            params.put("success_url", "http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}");
+//            params.put("cancel_url", "http://localhost:3000/booking?cancelled=true");
+            
+            params.put("success_url", "https://masterclassbookings-backend-production.up.railway.app/payment-success?session_id={CHECKOUT_SESSION_ID}");
+            params.put("cancel_url", "https://masterclassbookings-backend-production.up.railway.app/booking?");
 
             Session session = Session.create(params);
 
