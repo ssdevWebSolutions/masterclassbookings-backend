@@ -47,7 +47,7 @@ public class SendGridEmailService {
     ) throws IOException {
 
         Email from = new Email(fromEmail, fromName);
-        Email to = new Email("samuelvullangula16@gmail.com"); // You can change this to parentEmail if needed
+        Email to = new Email(parentEmail); // You can change this to parentEmail if needed
         String subject = "✅ Booking Confirmation - Masterclass Cricket Academy";
 
         // Determine programme based on year (same logic as EmailService)
@@ -360,4 +360,40 @@ public class SendGridEmailService {
             throw ex;
         }
     }
+    
+    
+    /**
+     * Send OTP email - new method for OTP functionality
+     */
+    public void sendOTPEmail(String toEmail, String subject, String htmlContent) throws IOException {
+        Email from = new Email(fromEmail, fromName);
+        Email to = new Email(toEmail);
+        
+        // Create SendGrid mail object
+        Content content = new Content("text/html", htmlContent);
+        Mail mail = new Mail(from, subject, to, content);
+
+        // Send the email using SendGrid API
+        SendGrid sg = new SendGrid(sendGridApiKey);
+        Request request = new Request();
+        
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
+            
+            // Optional: Log the response for debugging
+            System.out.println("SendGrid OTP Email Response Status Code: " + response.getStatusCode());
+            System.out.println("SendGrid OTP Email Response Body: " + response.getBody());
+            System.out.println("SendGrid OTP Email Response Headers: " + response.getHeaders());
+            
+        } catch (IOException ex) {
+            System.err.println("Error sending OTP email via SendGrid: " + ex.getMessage());
+            throw ex;
+        }
+    }
+    
+    
+    
 }

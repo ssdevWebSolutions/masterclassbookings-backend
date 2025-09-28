@@ -155,12 +155,17 @@ public class PaymentController {
             metadata.put("sessionIds", reservationDetails.get("sessionIds").toString());
             metadata.put("totalAmount", reservationDetails.get("totalAmount").toString());
             params.put("metadata", metadata);
-
+            
 //            params.put("success_url", "http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}");
 //            params.put("cancel_url", "http://localhost:3000/booking?cancelled=true");
+
+//            params.put("success_url", "http://localhost:3000/bookings");
+//            params.put("cancel_url", "http://localhost:3000/bookings?cancelled=true");
             
-            params.put("success_url", "https://masterclassbookings-rt5n.vercel.app/payment-success");
-            params.put("cancel_url", "https://masterclassbookings-rt5n.vercel.app/bookings");
+            params.put("success_url", "https://masterclassbookings-rt5n.vercel.app/payment-success?session_id={CHECKOUT_SESSION_ID}");
+            params.put("cancel_url", "https://masterclassbookings-rt5n.vercel.app/bookings?cancelled=true");
+            
+         
 
             Session session = Session.create(params);
 
