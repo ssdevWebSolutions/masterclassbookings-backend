@@ -145,20 +145,20 @@ public class BookingService {
             log.error("Failed to send SendGrid email", e);
         }
 
-        try {
-            emailService.sendBookingConfirmation(
-                    bookingData.getParentEmail(),
-                    bookingData.getParentName(),
-                    bookingData.getKidName(),
-                    bookingData.getBookingId(),
-                    bookingData.getTotalAmount(),
-                    bookingData.getSessionDetails()
-            );
-            log.info("Booking confirmation email sent to {}", bookingData.getParentEmail());
-        } catch (MessagingException e) {
-            log.error("Failed to send booking confirmation email for bookingId={}", 
-                    bookingData.getBookingId(), e);
-        }
+//        try {
+//            emailService.sendBookingConfirmation(
+//                    bookingData.getParentEmail(),
+//                    bookingData.getParentName(),
+//                    bookingData.getKidName(),
+//                    bookingData.getBookingId(),
+//                    bookingData.getTotalAmount(),
+//                    bookingData.getSessionDetails()
+//            );
+//            log.info("Booking confirmation email sent to {}", bookingData.getParentEmail());
+//        } catch (MessagingException e) {
+//            log.error("Failed to send booking confirmation email for bookingId={}", 
+//                    bookingData.getBookingId(), e);
+//        }
 
         return bookingData;
     }
