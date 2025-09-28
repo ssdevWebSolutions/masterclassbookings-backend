@@ -159,8 +159,8 @@ public class PaymentController {
 //            params.put("success_url", "http://localhost:3000/payment-success?session_id={CHECKOUT_SESSION_ID}");
 //            params.put("cancel_url", "http://localhost:3000/booking?cancelled=true");
             
-            params.put("success_url", "https://masterclassbookings-backend-production.up.railway.app/payment-success?session_id={CHECKOUT_SESSION_ID}");
-            params.put("cancel_url", "https://masterclassbookings-backend-production.up.railway.app/booking?");
+            params.put("success_url", "https://masterclassbookings-rt5n.vercel.app/payment-success");
+            params.put("cancel_url", "https://masterclassbookings-rt5n.vercel.app/bookings");
 
             Session session = Session.create(params);
 
