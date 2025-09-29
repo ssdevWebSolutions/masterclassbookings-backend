@@ -163,7 +163,7 @@ public class PaymentController {
 //            params.put("cancel_url", "http://localhost:3000/bookings?cancelled=true");
             
             params.put("success_url", "https://masterclassbookings-rt5n.vercel.app/payment-success?session_id={CHECKOUT_SESSION_ID}");
-            params.put("cancel_url", "https://masterclassbookings-rt5n.vercel.app/bookings?cancelled=true");
+            params.put("cancel_url", "https://masterclassbookings-rt5n.vercel.app/booking?cancelled=true");
             
          
 
