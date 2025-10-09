@@ -233,7 +233,12 @@ public class BookingService {
         dto.setBookingId(booking.getId());
         dto.setParentName(parent.getFirstName() + " " + parent.getLastName());
         dto.setParentEmail(parent.getEmail());
+        dto.setPhoneNumber(parent.getPhoneNumber());
         dto.setKidName(kid.getFirstName() + " " + kid.getLastName());
+        dto.setKidLevel(kid.getLevel());
+        dto.setAge(kid.getAge());
+        dto.setClub(kid.getClub());
+        dto.setMedicalInfo(kid.getMedicalInfo());
         dto.setKidLevel(kid.getLevel());
         dto.setTotalAmount(booking.getTotalAmount());
         dto.setPaymentStatus(booking.getPaymentStatus());
