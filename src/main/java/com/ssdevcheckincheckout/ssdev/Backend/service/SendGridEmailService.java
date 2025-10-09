@@ -49,6 +49,9 @@ public class SendGridEmailService {
         Email from = new Email(fromEmail, fromName);
         Email to = new Email(parentEmail); // You can change this to parentEmail if needed
         String subject = "✅ Booking Confirmation - Masterclass Cricket Academy";
+        String parentSubject = "✅ Booking Confirmation - Masterclass Cricket Academy";
+        String adminSubject = "📩 New Booking Received - Masterclass Cricket Academy";
+
 
         // Determine programme based on year (same logic as EmailService)
         String programme = "";
@@ -335,28 +338,63 @@ public class SendGridEmailService {
         htmlBuilder.append("</div>");
         htmlBuilder.append("</body>");
         htmlBuilder.append("</html>");
+        
+        
+        String htmlContent = htmlBuilder.toString();
 
-        // Create SendGrid mail object
-        Content content = new Content("text/html", htmlBuilder.toString());
+        // --- Send to Parent ---
+        sendEmailToRecipient(parentEmail, parentSubject, htmlContent);
+
+        // --- Send to Admin ---
+        sendEmailToRecipient("admin@masterclasscricket.co.uk", adminSubject, htmlContent);
+
+//        // Create SendGrid mail object
+//        Content content = new Content("text/html", htmlBuilder.toString());
+//        Mail mail = new Mail(from, subject, to, content);
+//
+//        // Send the email using SendGrid API
+//        SendGrid sg = new SendGrid(sendGridApiKey);
+//        Request request = new Request();
+//        
+//        try {
+//            request.setMethod(Method.POST);
+//            request.setEndpoint("mail/send");
+//            request.setBody(mail.build());
+//            Response response = sg.api(request);
+//            
+//            // Optional: Log the response for debugging
+//            System.out.println("SendGrid Response Status Code: " + response.getStatusCode());
+//            System.out.println("SendGrid Response Body: " + response.getBody());
+//            System.out.println("SendGrid Response Headers: " + response.getHeaders());
+//            
+//        } catch (IOException ex) {
+//            System.err.println("Error sending email via SendGrid: " + ex.getMessage());
+//            throw ex;
+//        }
+    }
+    
+    
+    /** Generic reusable email sender */
+    private void sendEmailToRecipient(String recipientEmail, String subject, String htmlContent) throws IOException {
+        Email from = new Email(fromEmail, fromName);
+        Email to = new Email(recipientEmail);
+        Content content = new Content("text/html", htmlContent);
+
         Mail mail = new Mail(from, subject, to, content);
-
-        // Send the email using SendGrid API
         SendGrid sg = new SendGrid(sendGridApiKey);
         Request request = new Request();
-        
+
         try {
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");
             request.setBody(mail.build());
             Response response = sg.api(request);
-            
-            // Optional: Log the response for debugging
-            System.out.println("SendGrid Response Status Code: " + response.getStatusCode());
-            System.out.println("SendGrid Response Body: " + response.getBody());
-            System.out.println("SendGrid Response Headers: " + response.getHeaders());
-            
+
+            System.out.println("Email sent to: " + recipientEmail);
+            System.out.println("Status Code: " + response.getStatusCode());
+            System.out.println("Response Body: " + response.getBody());
         } catch (IOException ex) {
-            System.err.println("Error sending email via SendGrid: " + ex.getMessage());
+            System.err.println("Error sending email via SendGrid to " + recipientEmail + ": " + ex.getMessage());
             throw ex;
         }
     }
