@@ -1,5 +1,7 @@
 package com.ssdevcheckincheckout.ssdev.Backend.security;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,7 +33,12 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(request -> {
                 var corsConfig = new org.springframework.web.cors.CorsConfiguration();
 //                corsConfig.setAllowedOrigins(java.util.List.of("http://localhost:3000"));
-                corsConfig.setAllowedOrigins(java.util.List.of("https://masterclassbookings-rt5n.vercel.app/,http://localhost:3000"));
+//                corsConfig.setAllowedOrigins(java.util.List.of("https://masterclassbookings-rt5n.vercel.app/,http://localhost:3000"));
+                corsConfig.setAllowedOrigins(List.of(
+                        "https://masterclassbookings.vercel.app",
+                        "https://masterclassbookings-rt5n.vercel.app",
+                        "http://localhost:3000"
+                    ));
                 corsConfig.setAllowedMethods(java.util.List.of("GET","POST","PUT","DELETE","OPTIONS"));
                 corsConfig.setAllowedHeaders(java.util.List.of("*"));
                 corsConfig.setAllowCredentials(true);
