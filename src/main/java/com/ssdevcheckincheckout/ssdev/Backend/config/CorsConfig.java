@@ -16,7 +16,7 @@ public class CorsConfig {
          public void addCorsMappings(CorsRegistry registry) {
              registry.addMapping("/**") // allow all endpoints
 //                     .allowedOrigins("http://localhost:3000") // frontend origin
-             		 .allowedOrigins("https://masterclassbookings-rt5n.vercel.app/")
+             		 .allowedOrigins("https://masterclassbookings-rt5n.vercel.app", "https://masterclassbookings.vercel.app")
                      .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                      .allowedHeaders("*")
                      .allowCredentials(true);
