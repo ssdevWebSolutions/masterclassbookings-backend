@@ -433,5 +433,124 @@ public class SendGridEmailService {
     }
     
     
+    /**
+     * Sends confirmation email for a registration service request.
+     */
+    public void sendServiceRequestConfirmation(
+            String userEmail,
+            String userName,
+            long requestId,
+            String requestType,
+            String message
+    ) throws IOException {
+
+        String subjectUser = "📩 Service Request Received - Masterclass Cricket Academy";
+        String subjectAdmin = "🧾 New Service Request Submitted";
+
+        // Build a simple professional HTML email
+        String htmlContent = """
+            <html>
+            <body style="font-family: Arial, sans-serif; background-color:#f4f6f9; padding: 30px;">
+                <div style="max-width: 600px; margin: auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                    <h2 style="color: #1a472a;">Service Request Received ✅</h2>
+                    <p>Dear <strong>%s</strong>,</p>
+                    <p>We’ve received your service request and our team will get back to you shortly.</p>
+                    <hr style="margin: 20px 0;">
+                    <p><strong>Request ID:</strong> #%d</p>
+                    <p><strong>Type:</strong> %s</p>
+                    <p><strong>Message:</strong> %s</p>
+                    <p><strong>Status:</strong> PENDING</p>
+                    <hr style="margin: 20px 0;">
+                    <p style="color: #1a472a;">You’ll receive another email once your request is processed.</p>
+                    <p>Thank you,<br><strong>Masterclass Cricket Academy Team</strong></p>
+                </div>
+                <p style="text-align:center; margin-top:20px; font-size:13px; color:#888;">
+                    © Masterclass Cricket Academy | This is an automated email. Please do not reply.
+                </p>
+            </body>
+            </html>
+            """.formatted(userName, requestId, requestType, message);
+
+        // Send to the user
+        sendEmailToRecipient(userEmail, subjectUser, htmlContent);
+
+        // Send to the admin
+        String adminHtml = """
+            <html>
+            <body style="font-family: Arial, sans-serif; background-color:#f4f6f9; padding: 30px;">
+                <div style="max-width: 600px; margin: auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                    <h2 style="color: #d97706;">New Service Request Submitted 📬</h2>
+                    <p><strong>Request ID:</strong> #%d</p>
+                    <p><strong>User Name:</strong> %s</p>
+                    <p><strong>Email:</strong> %s</p>
+                    <p><strong>Type:</strong> %s</p>
+                    <p><strong>Message:</strong> %s</p>
+                    <p><strong>Status:</strong> PENDING</p>
+                    <hr>
+                    <p>View and approve this request from the Admin Panel.</p>
+                </div>
+            </body>
+            </html>
+            """.formatted(requestId, userName, userEmail, requestType, message);
+
+        sendEmailToRecipient("admin@masterclasscricket.co.uk", subjectAdmin, adminHtml);
+    }
+    
+    
+    public void sendRegistrationApprovalEmail(
+            String userEmail,
+            String userName,
+            long requestId,
+            String defaultPassword
+    ) throws IOException {
+
+        String subjectUser = "✅ Registration Approved - Masterclass Cricket Academy";
+        String subjectAdmin = "📬 New User Registration Approved";
+
+        // --- HTML for the user ---
+        String htmlUser = """
+            <html>
+            <body style="font-family: Arial, sans-serif; background-color:#f4f6f9; padding: 30px;">
+                <div style="max-width: 600px; margin: auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                    <h2 style="color: #1a472a;">Registration Approved 🎉</h2>
+                    <p>Dear <strong>%s</strong>,</p>
+                    <p>Your registration has been successfully approved! You can now login to your account using the following credentials:</p>
+                    <p><strong>Email:</strong> %s<br><strong>Password:</strong> %s</p>
+                    <hr style="margin: 20px 0;">
+                    <p style="color: #1a472a;">We strongly recommend changing your password after your first login.</p>
+                    <p>Welcome aboard!<br><strong>Masterclass Cricket Academy Team</strong></p>
+                </div>
+                <p style="text-align:center; margin-top:20px; font-size:13px; color:#888;">
+                    © Masterclass Cricket Academy | This is an automated email. Please do not reply.
+                </p>
+            </body>
+            </html>
+            """.formatted(userName, userEmail, defaultPassword);
+
+        // --- HTML for the admin ---
+        String htmlAdmin = """
+            <html>
+            <body style="font-family: Arial, sans-serif; background-color:#f4f6f9; padding: 30px;">
+                <div style="max-width: 600px; margin: auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+                    <h2 style="color: #d97706;">New User Registration Approved 📬</h2>
+                    <p><strong>Request ID:</strong> #%d</p>
+                    <p><strong>User Name:</strong> %s</p>
+                    <p><strong>Email:</strong> %s</p>
+                    <p><strong>Status:</strong> APPROVED</p>
+                    <hr>
+                    <p>Check the Admin Panel for details and further actions.</p>
+                </div>
+            </body>
+            </html>
+            """.formatted(requestId, userName, userEmail);
+
+        // Send emails using your existing reusable method
+        sendEmailToRecipient(userEmail, subjectUser, htmlUser);
+        sendEmailToRecipient("admin@masterclasscricket.co.uk", subjectAdmin, htmlAdmin);
+    }
+
+
+    
+    
     
 }

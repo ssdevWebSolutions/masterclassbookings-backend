@@ -45,7 +45,10 @@ public class SecurityConfig {
                 return corsConfig;
             }))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**").permitAll()
+            		.requestMatchers(
+            		        "/api/auth/**", 
+            		        "/api/auth/service-request/**"
+            		    ).permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
