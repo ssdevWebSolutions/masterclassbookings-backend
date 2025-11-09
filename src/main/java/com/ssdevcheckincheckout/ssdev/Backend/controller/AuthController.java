@@ -2,9 +2,18 @@ package com.ssdevcheckincheckout.ssdev.Backend.controller;
 
 import com.ssdevcheckincheckout.ssdev.Backend.dto.*;
 import com.ssdevcheckincheckout.ssdev.Backend.entity.User;
+import com.ssdevcheckincheckout.ssdev.Backend.repository.UserRepository;
 import com.ssdevcheckincheckout.ssdev.Backend.service.AuthService;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import java.security.Key;
+
 import com.ssdevcheckincheckout.ssdev.Backend.security.JWTUtil;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Map;
 
 @CrossOrigin(origins = "https://masterclassbookings-rt5n.vercel.app/,http://localhost:3000")
 @RestController
@@ -22,6 +32,13 @@ public class AuthController {
 
     private final AuthService authService;
     private final JWTUtil jwtUtil;
+    
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Value("${jwt.secret}")  // Inject the secret key from application.properties
+    private String secretKey;
 
     // Constructor
     public AuthController(AuthService authService, JWTUtil jwtUtil) {
@@ -186,6 +203,27 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(authService.login(loginRequest));
     }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody Map<String, String> req) {
+        String refreshToken = req.get("refreshToken");
+        try {
+            Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+            Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
+            String email = claims.getSubject();
+            User user = userRepository.findByEmail(email).orElseThrow();
+            String newAccessToken = jwtUtil.generateAccessToken(user);
+            return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Refresh token invalid or expired");
+        }
+    }
+
+    
+    
+    
+    
+    
     
     @GetMapping("/test")
     @PreAuthorize("hasRole('USER')")

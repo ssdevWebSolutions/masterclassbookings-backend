@@ -14,6 +14,8 @@ public class LoginResponse {
 	
 	private String token;
 	
+	private String refreshToken;
+	
 	private long id;
 
 	public LoginResponse() {
@@ -21,13 +23,15 @@ public class LoginResponse {
 		// TODO Auto-generated constructor stub
 	}
 
-	public LoginResponse(String fullName, String mobileNumber, Role role, String email, String token, long id) {
+	public LoginResponse(String fullName, String mobileNumber, Role role, String email, String token,
+			String refreshToken, long id) {
 		super();
 		this.fullName = fullName;
 		this.mobileNumber = mobileNumber;
 		this.role = role;
 		this.email = email;
 		this.token = token;
+		this.refreshToken = refreshToken;
 		this.id = id;
 	}
 
@@ -71,6 +75,14 @@ public class LoginResponse {
 		this.token = token;
 	}
 
+	public String getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
+
 	public long getId() {
 		return id;
 	}
@@ -78,6 +90,8 @@ public class LoginResponse {
 	public void setId(long id) {
 		this.id = id;
 	}
+
+	
 
 	
 	

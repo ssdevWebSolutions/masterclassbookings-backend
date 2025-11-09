@@ -1,10 +1,8 @@
 package com.ssdevcheckincheckout.ssdev.Backend.service;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.ssdevcheckincheckout.ssdev.Backend.dto.AuthResponse;
 import com.ssdevcheckincheckout.ssdev.Backend.dto.LoginRequest;
 import com.ssdevcheckincheckout.ssdev.Backend.dto.LoginResponse;
 import com.ssdevcheckincheckout.ssdev.Backend.dto.RegisterRequest;
@@ -138,15 +136,18 @@ public class AuthService {
 
     // Login user (authenticate and generate JWT) - unchanged
     public LoginResponse login(LoginRequest loginRequest) {
-        // Find user by email
         Optional<User> userOptional = userRepository.findByEmail(loginRequest.getEmail());
         if (userOptional.isEmpty() || !passwordEncoder.matches(loginRequest.getPassword(), userOptional.get().getPassword())) {
             throw new InvalidCredentialsException("Invalid email or password");
         }
-
+        
         System.out.println(userOptional.get().getRole() + "->");
         // Generate JWT token
-        String token = jwtUtil.generateToken(userOptional.get());
+//        String token = jwtUtil.generateToken(userOptional.get());
+        
+        String accessToken = jwtUtil.generateAccessToken(userOptional.get());
+        String refreshToken = jwtUtil.generateRefreshToken(userOptional.get());
+
 
         LoginResponse lr = new LoginResponse();
         Optional<User> getUser = userRepository.findByEmail(userOptional.get().getEmail());
@@ -160,7 +161,8 @@ public class AuthService {
         lr.setFullName(userOptional.get().getFirstName() + " " + userOptional.get().getLastName());
         lr.setMobileNumber(userOptional.get().getPhoneNumber());
         lr.setRole(userOptional.get().getRole());
-        lr.setToken(token);
+        lr.setToken(accessToken);
+        lr.setRefreshToken(refreshToken);
 
         // Return AuthResponse with the token
         return lr;

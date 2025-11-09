@@ -3,6 +3,7 @@ package com.ssdevcheckincheckout.ssdev.Backend.security;
 import com.ssdevcheckincheckout.ssdev.Backend.entity.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -61,4 +62,29 @@ public class JWTUtil {
     	System.out.print("hello");
         return !isTokenExpired(token);  // Validate if the token is not expired
     }
+    
+    
+    
+//    To generate access token and refresh token 
+    public String generateAccessToken(User user) {
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .claim("role", user.getRole())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) // 30 mins
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(User user) {
+        Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)) // 7 days
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
 }
